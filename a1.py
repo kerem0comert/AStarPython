@@ -4,10 +4,9 @@ from Node import Node
 from Point import Point
 from Candidate import Candidate
 
-def manhattanDistance(point, dest):
-    return abs(dest.x - point.x) + abs(dest.y - point.y)
+def manhattanDistance(p1, p2): return abs(p1.x - p2.x) + abs(p1.y - p2.y)
 
-def isAsterix(space, point):  return space[point.y][point.x] == '*'
+def isAsterix(space, point):return space[point.y][point.x] == '*'
  
 def decideATie(c1, c2): 
     if(c1.y != c2.y):
@@ -19,45 +18,44 @@ def decideATie(c1, c2):
 
 
 def mapPrinter(space):
-    print("\n")
-    print(" ",end="")
+    print("\n ",end="")
     for x in range(9): 
         if(x == 8): print(x)
         else: print(x, end="") 
     for i, line in enumerate(space):
         print(i,end="")
         print(line)
+    print("\n")
         
         
-
-
-with open("map.txt") as f: 
-    space = f.read().splitlines()
+with open("map.txt") as f: space = f.read().splitlines()
 
 nodesList = []
 for y, line in enumerate(space): 
     for x, char in enumerate(line):
-        if char not in ['*', ' ']:
-            nodesList.append(Node(char, x, y))
+        if char not in ['*', ' ']: nodesList.append(Node(char, x, y))
 
 
-for n in nodesList: print(n.name, n.x, n.y)
 mapPrinter(space)
+for n in nodesList: print(n.name, n.x, n.y)
+#nodesList = nodesList.sort()
+print("\n")
 
-targetNode = nodesList[2]
 startNode = nodesList[0]
-print(f"Start: {startNode.__dict__} Target: {targetNode.__dict__}")
+targetNode = nodesList[2]
 
 for index, startNode in enumerate(nodesList):
     for targetNode in nodesList[index:]:
+        g = 0
         if startNode.name == targetNode.name: continue
         candidate = Candidate(startNode.x, startNode.y, 
-                            0, manhattanDistance(startNode,targetNode))
+                            g, manhattanDistance(startNode,targetNode))
         closedList = []
         cToExpand = candidate
         fringe = [cToExpand]
         path = [cToExpand]
         while cToExpand.x != targetNode.x or cToExpand.y != targetNode.y:
+
             #print(f"\nTo expand: {cToExpand.__dict__}")
             possibleMoves = [
                             Point(cToExpand.x+1,cToExpand.y), #right
@@ -73,7 +71,7 @@ for index, startNode in enumerate(nodesList):
                                         manhattanDistance(point, targetNode))
                     if not any(c.__eq__(candidate) for c in closedList):
                         fringe.append(candidate)
-            
+            print(point)
             closedList.append(fringe.pop(fringe.index(cToExpand)))          
             cToExpand = fringe[0]
             for c in fringe[1:]:
@@ -81,8 +79,9 @@ for index, startNode in enumerate(nodesList):
                     cToExpand = c
                 elif (c.g + c.h) == (cToExpand.g +cToExpand.h):
                     cToExpand = decideATie(c, cToExpand)
-        
+
         #print(f"Found: {cToExpand.__dict__} ")
+        
         print(f"{startNode.name},{targetNode.name},{cToExpand.g}")
 
        
