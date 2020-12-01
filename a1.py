@@ -41,8 +41,8 @@ for n in nodesList: print(n.name, n.x, n.y)
 #nodesList = nodesList.sort()
 print("\n")
 
-startNode = nodesList[0]
-targetNode = nodesList[2]
+startNode = nodesList[1]
+targetNode = nodesList[3]
 
 for index, startNode in enumerate(nodesList):
     for targetNode in nodesList[index:]:
@@ -70,15 +70,21 @@ for index, startNode in enumerate(nodesList):
                                         manhattanDistance(point, startNode), 
                                         manhattanDistance(point, targetNode))
                     if not any(c.__eq__(candidate) for c in closedList):
+                        candidate.g = cToExpand.g + 1
                         fringe.append(candidate)
-            print(point)
-            closedList.append(fringe.pop(fringe.index(cToExpand)))          
+
+            #remove the expanded point from fringe and add it to the list of 
+            #closed points
+            closedList.append(fringe.pop(fringe.index(cToExpand)))        
+          
             cToExpand = fringe[0]
             for c in fringe[1:]:
                 if (c.g + c.h) > (cToExpand.g +cToExpand.h):
                     cToExpand = c
                 elif (c.g + c.h) == (cToExpand.g +cToExpand.h):
                     cToExpand = decideATie(c, cToExpand)
+                    
+            print(f"Found: {cToExpand.__dict__} ")
 
         #print(f"Found: {cToExpand.__dict__} ")
         
