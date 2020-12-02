@@ -57,20 +57,19 @@ for n in nodesList: print(n.name, n.x, n.y)
 mapPrinter(space)
 
 
-
+graph = []
 for index, startNode in enumerate(nodesList):
-
     for targetNode in nodesList[index:]:
         if startNode.name == targetNode.name: continue
         candidate = Candidate(startNode.x, startNode.y, 
                             0, manhattanDistance(startNode,targetNode))
-        closedList = []
+
+        closedList = [] 
         cToExpand = candidate
         fringe = [cToExpand]
         path = [cToExpand]
         print(f"Start: {startNode.__dict__} Target: {targetNode.__dict__}")
         while cToExpand.x != targetNode.x or cToExpand.y != targetNode.y:
-            
             #print(f"\nTo expand: {cToExpand.__dict__}")
             possibleMoves = [
                             Point(cToExpand.x+1,cToExpand.y), #right
@@ -82,12 +81,18 @@ for index, startNode in enumerate(nodesList):
                 if not isAsterix(space, point): 
                     candidate = Candidate(point.x,
                                         point.y, 
-                                        manhattanDistance(point, startNode), 
+                                        cToExpand.g, 
                                         manhattanDistance(point, targetNode))
                     if not any(c.__eq__(candidate) for c in closedList):
                         fringe.append(candidate)
             
-            closedList.append(fringe.pop(fringe.index(cToExpand)))        
+            visited = fringe.pop(fringe.index(cToExpand))
+            if not any(c.__eq__(visited) for c in closedList):
+                closedList.append(visited)  
+            
+            for c in closedList:
+                print(c.__dict__)
+           
             cToExpand = fringe[0]
             for c in fringe[1:]:
                 if (c.g + c.h) > (cToExpand.g +cToExpand.h):
@@ -96,11 +101,11 @@ for index, startNode in enumerate(nodesList):
                     cToExpand = decideATie(c, cToExpand)
             printCurrentPos(space, cToExpand)
             
-            
-
-    
         #print(f"Found: {cToExpand.__dict__} ")
         print(f"{startNode.name},{targetNode.name},{cToExpand.g}")
+        
+        
+
 
        
     
