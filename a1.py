@@ -28,6 +28,18 @@ def mapPrinter(space):
         print(i,end="")
         print(line)
         
+def printCurrentPos(space, point):
+    print("\n")
+    print(" ",end="")
+    for x in range(9): 
+        if(x == 8): print(x)
+        else: print(x, end="") 
+    for i, line in enumerate(space):
+        print(i,end="")
+        if(i == point.y):
+            print(line[:point.x] + "X" + line[point.x + 1:])
+        else: print(line)
+        
         
 
 
@@ -44,11 +56,10 @@ for y, line in enumerate(space):
 for n in nodesList: print(n.name, n.x, n.y)
 mapPrinter(space)
 
-targetNode = nodesList[2]
-startNode = nodesList[0]
-print(f"Start: {startNode.__dict__} Target: {targetNode.__dict__}")
+
 
 for index, startNode in enumerate(nodesList):
+
     for targetNode in nodesList[index:]:
         if startNode.name == targetNode.name: continue
         candidate = Candidate(startNode.x, startNode.y, 
@@ -57,7 +68,9 @@ for index, startNode in enumerate(nodesList):
         cToExpand = candidate
         fringe = [cToExpand]
         path = [cToExpand]
+        print(f"Start: {startNode.__dict__} Target: {targetNode.__dict__}")
         while cToExpand.x != targetNode.x or cToExpand.y != targetNode.y:
+            
             #print(f"\nTo expand: {cToExpand.__dict__}")
             possibleMoves = [
                             Point(cToExpand.x+1,cToExpand.y), #right
@@ -74,14 +87,18 @@ for index, startNode in enumerate(nodesList):
                     if not any(c.__eq__(candidate) for c in closedList):
                         fringe.append(candidate)
             
-            closedList.append(fringe.pop(fringe.index(cToExpand)))          
+            closedList.append(fringe.pop(fringe.index(cToExpand)))        
             cToExpand = fringe[0]
             for c in fringe[1:]:
                 if (c.g + c.h) > (cToExpand.g +cToExpand.h):
                     cToExpand = c
                 elif (c.g + c.h) == (cToExpand.g +cToExpand.h):
                     cToExpand = decideATie(c, cToExpand)
-        
+            printCurrentPos(space, cToExpand)
+            
+            
+
+    
         #print(f"Found: {cToExpand.__dict__} ")
         print(f"{startNode.name},{targetNode.name},{cToExpand.g}")
 
