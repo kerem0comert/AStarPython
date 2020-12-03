@@ -4,11 +4,10 @@ from Node import Node
 from Point import Point
 from Candidate import Candidate
 
-def manhattanDistance(point, dest):
-    return abs(dest.x - point.x) + abs(dest.y - point.y)
+def manhattanDistance(p1, p2): return abs(p1.x - p2.x) + abs(p1.y - p2.y)
 
-def isAsterix(space, point):  return space[point.y][point.x] == '*'
- 
+def isAsterix(space, point): return space[point.y][point.x] == '*'
+
 def decideATie(c1, c2): 
     if(c1.y != c2.y):
         if c1.y < c2.y: return c1
@@ -17,8 +16,7 @@ def decideATie(c1, c2):
         if(c1.x < c2.x): return c1
         else: return c2
 
-
-def mapPrinter(space):
+def mapPrinter(space, point):
     print("\n")
     print(" ",end="")
     for x in range(9): 
@@ -26,23 +24,12 @@ def mapPrinter(space):
         else: print(x, end="") 
     for i, line in enumerate(space):
         print(i,end="")
-        print(line)
+        if point == None: print(line)
+        else:
+            if(i == point.y):
+                print(line[:point.x] + "X" + line[point.x + 1:])
+            else: print(line)
         
-def printCurrentPos(space, point):
-    print("\n")
-    print(" ",end="")
-    for x in range(9): 
-        if(x == 8): print(x)
-        else: print(x, end="") 
-    for i, line in enumerate(space):
-        print(i,end="")
-        if(i == point.y):
-            print(line[:point.x] + "X" + line[point.x + 1:])
-        else: print(line)
-        
-        
-
-
 with open("map.txt") as f: 
     space = f.read().splitlines()
 
@@ -52,14 +39,16 @@ for y, line in enumerate(space):
         if char not in ['*', ' ']:
             nodesList.append(Node(char, x, y))
 
+"""ordering nodesList alphabetically, for better clarity especially in the second part
+of this task"""
+nodesList.sort(key=lambda n: n.name)
 
 for n in nodesList: print(n.name, n.x, n.y)
-mapPrinter(space)
-
+mapPrinter(space, None)
 
 graph = []
 for index, startNode in enumerate(nodesList):
-    for targetNode in nodesList[index:]:
+    for targetNode in nodesList:
         if startNode.name == targetNode.name: continue
         candidate = Candidate(startNode.x, startNode.y, 
                             0, manhattanDistance(startNode,targetNode))
@@ -87,9 +76,6 @@ for index, startNode in enumerate(nodesList):
                         fringe.append(candidate)
             
             closedList.append(fringe.pop(fringe.index(cToExpand)))
-            
-
-           
             cToExpand = fringe[0]
             for c in fringe[1:]:
                 if (c.g + c.h) > (cToExpand.g +cToExpand.h):
@@ -99,7 +85,48 @@ for index, startNode in enumerate(nodesList):
             #printCurrentPos(space, cToExpand)
             
         #print(f"Found: {cToExpand.__dict__} ")
+        graph.append([startNode.name, targetNode.name, cToExpand.g])
+        #mapPrinter(space, cToExpand)
         print(f"{startNode.name},{targetNode.name},{cToExpand.g}")
+
+print(graph)
+
+
+#---------TFS------------
+adjacencyMatrix = {}
+s = 0
+for node in nodesList:
+    weights = {}
+    print(f"Between {s} and {s+3}")
+    for pair in graph[s:(s+3)]:
+        weights[pair[1]] = pair[2]
+    #weights.insert(i, 0)
+    s += 3
+    adjacencyMatrix[node.name] = weights
+    
+print("\n")
+print(adjacencyMatrix)
+print(graph[4])
+
+
+nodeNames = [n.name for n in nodesList]
+origin = nodeNames[0]
+unvisited = nodeNames[1:]
+print(unvisited)
+
+
+"""while len(unvisited) > 0:
+    for u in unvisited:
+        maxIndex = adjacencyMatrix[0].index(max(adjacencyMatrix[0]))
+        
+        #print(unvisited[adjacencyMatrix[0].index(max(adjacencyMatrix[0]))])
+        
+        #print()"""
+        
+
+
+
+        
          
         
 
