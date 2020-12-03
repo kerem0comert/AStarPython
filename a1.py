@@ -89,30 +89,30 @@ for index, startNode in enumerate(nodesList):
         #mapPrinter(space, cToExpand)
         print(f"{startNode.name},{targetNode.name},{cToExpand.g}")
 
-print(graph)
+#print(graph)
 
 
-#---------TFS------------
+#---------TFS, obtaining a dict of dicts------------
 adjacencyMatrix = {}
 s = 0
 for node in nodesList:
     weights = {}
-    print(f"Between {s} and {s+3}")
-    for pair in graph[s:(s+3)]:
+    for pair in graph[s:(s+len(nodesList)-1)]:
         weights[pair[1]] = pair[2]
     #weights.insert(i, 0)
-    s += 3
+    s += len(nodesList)-1
     adjacencyMatrix[node.name] = weights
     
-print("\n")
-print(adjacencyMatrix)
-print(graph[4])
-
+#print(adjacencyMatrix)
+#print("\n")
 
 nodeNames = [n.name for n in nodesList]
 origin = nodeNames[0]
-unvisited = nodeNames[1:]
+unvisited = nodeNames
+unvisited.remove(origin)
 print(unvisited)
+
+
 
 
 """while len(unvisited) > 0:
