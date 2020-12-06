@@ -3,7 +3,7 @@
 from Node import Node
 from Point import Point
 from Candidate import Candidate
-from time import time
+from time import time_ns
 
 def manhattanDistance(p1, p2): return abs(p1.x - p2.x) + abs(p1.y - p2.y)
 
@@ -30,6 +30,21 @@ def mapPrinter(space, point):
             if(i == point.y):
                 print(line[:point.x] + "X" + line[point.x + 1:])
             else: print(line)
+            
+def expansionPrinter(space, path):
+    print(" ",end="")
+    for x in range(9): 
+        if(x == 8): print(x)
+        else: print(x, end="") 
+    for i, line in enumerate(space):
+        print(i,end="")
+        xsToCross = [c.x for c in path[2] if c.y == i]
+        for j, char in enumerate(line):
+            if j in xsToCross: print("X",end="")
+            else: print(char,end="") 
+        print("")
+    print("\n")
+
         
 with open("map.txt") as f: 
     space = f.read().splitlines()
@@ -43,11 +58,12 @@ for y, line in enumerate(space):
 """ordering nodesList alphabetically, for better clarity especially in the second part
 of this task"""
 nodesList.sort(key=lambda n: n.name)
+nodeNames = [n.name for n in nodesList]
 
-for n in nodesList: print(n.name, n.x, n.y)
 mapPrinter(space, None)
 
 graph = []
+paths = []
 for index, startNode in enumerate(nodesList):
     for targetNode in nodesList:
         if startNode.name == targetNode.name: continue
@@ -57,10 +73,8 @@ for index, startNode in enumerate(nodesList):
         closedList = [] 
         cToExpand = candidate
         fringe = [cToExpand]
-        path = [cToExpand]
-        #print(f"Start: {startNode.__dict__} Target: {targetNode.__dict__}")
+        path = []
         while cToExpand.x != targetNode.x or cToExpand.y != targetNode.y:
-            #print(f"\nTo expand: {cToExpand.__dict__}")
             possibleMoves = [
                             Point(cToExpand.x+1,cToExpand.y), #right
                             Point(cToExpand.x-1,cToExpand.y), #left
@@ -79,6 +93,10 @@ for index, startNode in enumerate(nodesList):
             #remove the cToExpand from fringe, put to closedList
             closedList.append(fringe.pop(fringe.index(cToExpand)))
             
+            if space[cToExpand.y][cToExpand.x] not in nodeNames:
+                path.append(cToExpand)
+        
+            
             cToExpand = fringe[0]
             for c in fringe[1:]:
                 if (c.g + c.h) < (cToExpand.g +cToExpand.h):
@@ -86,13 +104,14 @@ for index, startNode in enumerate(nodesList):
                 elif (c.g + c.h) == (cToExpand.g +cToExpand.h):
                     cToExpand = decideATie(c, cToExpand)
             #printCurrentPos(space, cToExpand)
-            
-        #print(f"Found: {cToExpand.__dict__} ")
         graph.append([startNode.name, targetNode.name, cToExpand.g])
-        #mapPrinter(space, cToExpand)
-        #print(f"{startNode.name},{targetNode.name},{cToExpand.g}")
+        paths.append([startNode.name, targetNode.name, path])
 
-#print(graph)
+print("\nThese expansions are not the final decided path, but rather "
+      "they denote all the candidate points the A* algorithm considered.")
+for path in paths:
+    print(f"Expanding from {path[0]} to {path[1]}") 
+    expansionPrinter(space, path)
 
 
 #---------TFS, obtaining a dict of dicts------------
@@ -102,18 +121,19 @@ for node in nodesList:
     weights = {}
     for pair in graph[s:(s+len(nodesList)-1)]:
         weights[pair[1]] = pair[2]
-    #weights.insert(i, 0)
     s += len(nodesList)-1
     adjacencyMatrix[node.name] = weights
     
-print(adjacencyMatrix)
-#print("\n")
+for origin in adjacencyMatrix.keys():
+    for dest in adjacencyMatrix[origin].keys():
+        print(f"{origin},{dest},{adjacencyMatrix[origin][dest]}")
+
 
 #--------------UCS-----------------------
 matrix = adjacencyMatrix #copied it as it will be used again for the next algorithm
-nodeNames = list(matrix.keys())
 
-startTime = time()
+
+startTime = time_ns()
 cost = 0
 origin = nodeNames[0]
 cToExpand = origin
@@ -132,10 +152,10 @@ while len(nodeNames) > len(visited):
 #loop is over and everywhere is visited, go back to the initial node regardless
 cost += matrix[cToExpand][origin]
 visitStr += origin
-print(visitStr)
-print("---Statistics---")
+print("\n---Statistics---")
+print("With node A taken as a sample, the results below are calculated:")
 print("Algorithm Used\tNodes\tTime\tCost")
-print(f"UCS\t     {visitStr}\t {time() - startTime}\t{cost}")
+print(f"UCS\t     {visitStr}\t {time_ns() - startTime}\t{cost}")
 
 
 #--------------BFS-----------------------
@@ -156,6 +176,7 @@ def breathFirstSearch(cToExpand, matrix, visited):
     print(visitStr)
     
 
+startTime = time_ns()
 cost = 0
 origin = nodeNames[0]
 cToExpand = origin
@@ -173,9 +194,11 @@ while fringe:
             fringe.append(node)
 cost += adjacencyMatrix[origin][node]
 visitStr += "A" 
-print(f"BFS\t     {visitStr}\t {time() - startTime}\t{cost}")
+
+print(f"BFS\t     {visitStr}\t {time_ns() - startTime}\t{cost}")
 print("Since there are only 4 nodes with a max. depth of 2 in this particular case,"
-      "the calculated runtimes of both algorithms are insignificantly small."
+      "the calculated runtimes of both algorithms are insignificantly small. Even with"
+      " nanosecond precision, no difference is detected."
       "A larger data set is neeeded in order to accurately judge the performance.")
 
 
