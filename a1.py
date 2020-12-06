@@ -3,6 +3,7 @@
 from Node import Node
 from Point import Point
 from Candidate import Candidate
+from time import time
 
 def manhattanDistance(p1, p2): return abs(p1.x - p2.x) + abs(p1.y - p2.y)
 
@@ -111,11 +112,13 @@ print(adjacencyMatrix)
 #--------------UCS-----------------------
 matrix = adjacencyMatrix #copied it as it will be used again for the next algorithm
 nodeNames = list(matrix.keys())
+
+startTime = time()
 cost = 0
 origin = nodeNames[0]
 cToExpand = origin
 visited = {cToExpand}
-visitStr = ""
+visitStr = "A-"
 while len(nodeNames) > len(visited):
     minNode = min(matrix[cToExpand], key=matrix[cToExpand].get)
     while minNode in visited:
@@ -123,7 +126,6 @@ while len(nodeNames) > len(visited):
         minNode = min(matrix[cToExpand], key=matrix[cToExpand].get)
     cost += matrix[cToExpand][minNode]
     visited.add(minNode)
-    print(f"Visited {minNode}")
     visitStr += minNode + "-"
     cToExpand = minNode
 
@@ -131,7 +133,50 @@ while len(nodeNames) > len(visited):
 cost += matrix[cToExpand][origin]
 visitStr += origin
 print(visitStr)
+print("---Statistics---")
+print("Algorithm Used\tNodes\tTime\tCost")
+print(f"UCS\t     {visitStr}\t {time() - startTime}\t{cost}")
 
+
+#--------------BFS-----------------------
+"""even though 2 for loops is a possible solution for this set,
+a recursive solution would be a better generalization"""
+
+def breathFirstSearch(cToExpand, matrix, visited):
+    visited.append(cToExpand)
+    fringe.append(cToExpand)
+    visitStr = "A-"
+    while fringe:
+        s = fringe.pop(0) 
+        visitStr += s
+        for node in matrix[s]:
+            if node not in visited:
+                visited.append(node)
+                fringe.append(node)
+    print(visitStr)
+    
+
+cost = 0
+origin = nodeNames[0]
+cToExpand = origin
+visited = [cToExpand]
+fringe = [cToExpand]
+visitStr = ""
+cost = 0
+while fringe:
+    s = fringe.pop(0) 
+    visitStr += s + "-"
+    for node in matrix[s]:
+        if node not in visited:
+            visited.append(node)
+            cost += adjacencyMatrix[origin][node]
+            fringe.append(node)
+cost += adjacencyMatrix[origin][node]
+visitStr += "A" 
+print(f"BFS\t     {visitStr}\t {time() - startTime}\t{cost}")
+print("Since there are only 4 nodes with a max. depth of 2 in this particular case,"
+      "the calculated runtimes of both algorithms are insignificantly small."
+      "A larger data set is neeeded in order to accurately judge the performance.")
 
 
 
