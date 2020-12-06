@@ -6,4 +6,5 @@ class Candidate(Point):
         self.g = g
         self.h = h
 
-    def __eq__(self, c): return self.__dict__ == c.__dict__
+    def __eq__(self, c): return self.x == c.x and self.y == c.y
+    
