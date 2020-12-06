@@ -70,15 +70,17 @@ for index, startNode in enumerate(nodesList):
                 if not isAsterix(space, point): 
                     candidate = Candidate(point.x,
                                         point.y, 
-                                        manhattanDistance(point, startNode), 
+                                        cToExpand.g + 1, 
                                         manhattanDistance(point, targetNode))
                     if not any(c.__eq__(candidate) for c in closedList):
                         fringe.append(candidate)
             
+            #remove the cToExpand from fringe, put to closedList
             closedList.append(fringe.pop(fringe.index(cToExpand)))
+            
             cToExpand = fringe[0]
             for c in fringe[1:]:
-                if (c.g + c.h) > (cToExpand.g +cToExpand.h):
+                if (c.g + c.h) < (cToExpand.g +cToExpand.h):
                     cToExpand = c
                 elif (c.g + c.h) == (cToExpand.g +cToExpand.h):
                     cToExpand = decideATie(c, cToExpand)
@@ -87,7 +89,7 @@ for index, startNode in enumerate(nodesList):
         #print(f"Found: {cToExpand.__dict__} ")
         graph.append([startNode.name, targetNode.name, cToExpand.g])
         #mapPrinter(space, cToExpand)
-        print(f"{startNode.name},{targetNode.name},{cToExpand.g}")
+        #print(f"{startNode.name},{targetNode.name},{cToExpand.g}")
 
 #print(graph)
 
@@ -103,25 +105,38 @@ for node in nodesList:
     s += len(nodesList)-1
     adjacencyMatrix[node.name] = weights
     
-#print(adjacencyMatrix)
+print(adjacencyMatrix)
 #print("\n")
 
-nodeNames = [n.name for n in nodesList]
+#--------------UCS-----------------------
+matrix = adjacencyMatrix #copied it as it will be used again for the next algorithm
+nodeNames = list(matrix.keys())
+cost = 0
 origin = nodeNames[0]
-unvisited = nodeNames
-unvisited.remove(origin)
-print(unvisited)
+cToExpand = origin
+visited = {cToExpand}
+visitStr = ""
+while len(nodeNames) > len(visited):
+    minNode = min(matrix[cToExpand], key=matrix[cToExpand].get)
+    while minNode in visited:
+        matrix[cToExpand].pop(minNode, None)
+        minNode = min(matrix[cToExpand], key=matrix[cToExpand].get)
+    cost += matrix[cToExpand][minNode]
+    visited.add(minNode)
+    print(f"Visited {minNode}")
+    visitStr += minNode + "-"
+    cToExpand = minNode
+
+#loop is over and everywhere is visited, go back to the initial node regardless
+cost += matrix[cToExpand][origin]
+visitStr += origin
+print(visitStr)
 
 
 
 
-"""while len(unvisited) > 0:
-    for u in unvisited:
-        maxIndex = adjacencyMatrix[0].index(max(adjacencyMatrix[0]))
-        
-        #print(unvisited[adjacencyMatrix[0].index(max(adjacencyMatrix[0]))])
-        
-        #print()"""
+
+
         
 
 
